@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cold Storage Finder - AgriConnect</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-success shadow">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="index.html">AgriConnect</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="buy.html">Buy</a></li>
+          <li class="nav-item"><a class="nav-link" href="sell.html">Sell</a></li>
+        <li class="nav-item"><a class="nav-link" href="weather.html">Weather Alert</a></li>
+        <li class="nav-item"><a class="nav-link" href="coldstorage.html">Cold Storage </a></li>
+        <li class="nav-item"><a class="nav-link" href="contact.html">Contact Us </a></li>
+        <li class="nav-item"><a class="nav-link" href="guidance.html">Guidance </a></li>
+        <li class="nav-item"><a class="nav-link" href="register.html">Register </a></li>
+        <li class="nav-item"><a class="nav-link" href="login.html">Login </a></li>
+        <li class="nav-item"><a class="nav-link " href="about.html">About</a></li>
+        </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Cold Storage Finder Section -->
+<section class="container my-5">
+  <h1 class="text-center mb-4">Find Nearest Cold Storage</h1>
+  <p class="text-center mb-5">Click the button to find the nearest cold storage from your current location.</p>
+  <div class="text-center">
+    <button class="btn btn-success" onclick="findNearestStorage()">Find Nearest Cold Storage</button>
+  </div>
+  <div class="mt-4 text-center" id="result"></div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3 mt-5">
+  <p class="mb-0">© 2025 AgriConnect. All Rights Reserved.</p>
+</footer>
+
+<script>
+// Example cold storage locations (latitude, longitude, name)
+const coldStorages = [
+  {name: "Cold Storage A", lat: 28.6139, lon: 77.2090},
+  {name: "Cold Storage B", lat: 27.1767, lon: 78.0081},
+  {name: "Cold Storage C", lat: 26.9124, lon: 75.7873}
+];
+
+// Haversine formula to calculate distance between two lat/lon points in km
+function getDistance(lat1, lon1, lat2, lon2){
+  const R = 6371; // Radius of Earth in km
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lon2-lon1) * Math.PI/180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+            Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+            Math.sin(dLon/2)*Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+// Find nearest cold storage
+function findNearestStorage(){
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(position => {
+      const userLat = position.coords.latitude;
+      const userLon = position.coords.longitude;
+      
+      let nearest = null;
+      let minDistance = Infinity;
+      
+      coldStorages.forEach(storage => {
+        const dist = getDistance(userLat, userLon, storage.lat, storage.lon);
+        if(dist < minDistance){
+          minDistance = dist;
+          nearest = storage;
+        }
+      });
+      
+      document.getElementById('result').innerHTML = `
+        <h3>Nearest Cold Storage: ${nearest.name}</h3>
+        <p>Distance: ${minDistance.toFixed(2)} km</p>
+        <a href="https://www.google.com/maps/search/?api=1&query=${nearest.lat},${nearest.lon}" target="_blank" class="btn btn-primary">View on Map</a>
+      `;
+    }, error => {
+      alert('Please allow location access to find nearest cold storage.');
+    });
+  } else {
+    alert('Geolocation is not supported by your browser.');
+  }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
